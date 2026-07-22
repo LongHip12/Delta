@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "Lonely Bypass"
+version = "1.0.0"
+id = "artifacts/lonely-bypass"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19408
+
+[services.development]
+run = "pnpm --filter @workspace/lonely-bypass run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/lonely-bypass", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/lonely-bypass/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19408"
+BASE_PATH = "/"

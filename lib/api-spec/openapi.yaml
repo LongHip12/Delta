@@ -1,25 +1,148 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Lonely Bypass API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: bypass
+    description: Link bypass operations
+  - name: supported
+    description: Supported services
+  - name: stats
+    description: Global statistics
+  - name: apikeys
+    description: API key management
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /bypass:
+    post:
+      operationId: bypassLink
+      tags: [bypass]
+      summary: Bypass a single link
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BypassInput"
+      responses:
+        "200":
+          description: Bypassed link result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BypassResult"
+        "400":
+          description: Invalid or unsupported link
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /bypass/bulk:
+    post:
+      operationId: bypassBulk
+      tags: [bypass]
+      summary: Bypass multiple links
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BulkBypassInput"
+      responses:
+        "200":
+          description: Bulk bypass results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BulkBypassResult"
+  /supported:
+    get:
+      operationId: getSupportedServices
+      tags: [supported]
+      summary: Get all supported services
+      responses:
+        "200":
+          description: List of supported services
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Service"
+  /stats:
+    get:
+      operationId: getStats
+      tags: [stats]
+      summary: Get global bypass statistics
+      responses:
+        "200":
+          description: Statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Stats"
+  /api-keys:
+    post:
+      operationId: createApiKey
+      tags: [apikeys]
+      summary: Generate a new API key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApiKeyInput"
+      responses:
+        "201":
+          description: Created API key
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiKey"
+    get:
+      operationId: listApiKeys
+      tags: [apikeys]
+      summary: List API keys for session
+      responses:
+        "200":
+          description: List of API keys
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiKey"
+  /api-keys/{id}:
+    delete:
+      operationId: deleteApiKey
+      tags: [apikeys]
+      summary: Delete an API key
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deleted
           content:
             application/json:
               schema:
@@ -33,4 +156,89 @@ components:
           type: string
       required:
         - status
-
+    BypassInput:
+      type: object
+      required: [url]
+      properties:
+        url:
+          type: string
+        apiKey:
+          type: ["string", "null"]
+    BypassResult:
+      type: object
+      required: [success, destination]
+      properties:
+        success:
+          type: boolean
+        destination:
+          type: string
+        service:
+          type: ["string", "null"]
+        cached:
+          type: boolean
+    BulkBypassInput:
+      type: object
+      required: [urls]
+      properties:
+        urls:
+          type: array
+          items:
+            type: string
+        apiKey:
+          type: ["string", "null"]
+    BulkBypassResult:
+      type: object
+      required: [results]
+      properties:
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/BypassResult"
+    Service:
+      type: object
+      required: [id, name, domains, category]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        domains:
+          type: array
+          items:
+            type: string
+        category:
+          type: string
+    Stats:
+      type: object
+      required: [totalBypassed, totalServices, uptime]
+      properties:
+        totalBypassed:
+          type: integer
+        totalServices:
+          type: integer
+        uptime:
+          type: string
+    ApiKeyInput:
+      type: object
+      required: [label]
+      properties:
+        label:
+          type: string
+    ApiKey:
+      type: object
+      required: [id, key, label, createdAt]
+      properties:
+        id:
+          type: string
+        key:
+          type: string
+        label:
+          type: string
+        createdAt:
+          type: string
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string

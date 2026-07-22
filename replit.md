@@ -1,45 +1,50 @@
-# [Project name]
+# Lonely Bypass
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A link bypass service website that copies the UI of izen.lol. Bypasses 50+ link shorteners and key systems instantly.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/lonely-bypass run dev` — run the frontend (auto via workflow)
+- `pnpm --filter @workspace/api-server run dev` — run the API server (auto via workflow)
 - `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- `bash scripts/autocommit.sh "message"` — commit and push all changes to GitHub
 
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
+- Frontend: React + Vite + Tailwind CSS + Framer Motion
 - API: Express 5
 - DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
+- Validation: Zod (zod/v4), drizzle-zod
 - API codegen: Orval (from OpenAPI spec)
 - Build: esbuild (CJS bundle)
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/lonely-bypass/src/pages/` — all page components (home, supported, pricing, why-choose, support)
+- `artifacts/lonely-bypass/src/components/layout.tsx` — global nav + layout shell
+- `artifacts/api-server/src/routes/` — bypass, supported, stats, apiKeys route handlers
+- `lib/api-spec/openapi.yaml` — OpenAPI contract (source of truth)
+- `lib/db/src/schema/` — DB tables: apiKeys, bypassStats
 
-## Architecture decisions
+## Pages
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- `/` — Home: bypass input (Single/Bulk/+API Key tabs), stats, popular services
+- `/supported` — Service catalog with search and grouped categories
+- `/why-choose` — Features and reasons to use Lonely Bypass
+- `/pricing` — API pricing: Pay-as-you-go ($1/1000 req) and Monthly ($8/30 days)
+- `/support` — Discord, FAQ accordion, contact
 
-## Product
+## GitHub
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+Remote: https://github.com/LongHip12/Delta
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
-
-## Gotchas
-
-_Populate as you build — sharp edges, "always run X before Y" rules._
-
-## Pointers
-
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+- UI should copy izen.lol exactly (dark #0e0f14 bg, emerald green accent)
+- Title: "Lonely Bypass" not "Delta_"
+- Navigation: Home · Supported · Why Choose · Pricing · Support
+- No comments in code
+- Auto commit to GitHub on changes
